@@ -11,6 +11,12 @@ public class CreateStudentRequest {
 	
 	private String address;
 	
+	private String password;
+	
+	private String username;
+	
+	private String email;
+	
 	
 
 	

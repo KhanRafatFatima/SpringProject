@@ -22,6 +22,7 @@ import com.ebos.Request.LoginRequest;
 import com.ebos.Request.SignUpRequest;
 import com.ebos.Response.ApiResponse;
 import com.ebos.Response.JwtAuthenticationResponse;
+import com.ebos.Service.AuthService;
 import com.ebos.Service.UserService;
 import com.ebos.exception.AppException;
 import com.ebos.repository.RoleRepository;
@@ -53,13 +54,15 @@ public class AuthController {
     private JwtTokenProvider tokenProvider;
     
     @Autowired
-    private UserService userService;
+    private AuthService authService;
     
-    @PostMapping("/employeeLogin")
+    
+    
+    @PostMapping("/studentLogin")
     public ResponseEntity<Map<String,Object>> studentLogin(@Valid @RequestBody LoginRequest req) {
     	Map<String, Object> map = new HashMap<String, Object>();
 		try {
-			map = userService.employeeLogin(req);
+			map = authService.studentLogin(req);
 			return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<Map<String, Object>>(map, HttpStatus.INTERNAL_SERVER_ERROR);

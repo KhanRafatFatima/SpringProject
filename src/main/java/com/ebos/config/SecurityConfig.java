@@ -65,6 +65,7 @@ public class SecurityConfig {
 						auth -> auth.requestMatchers("/api/auth/**").permitAll()
 						.requestMatchers("/api/**").hasAnyAuthority("ROLE_USER")
 						.requestMatchers("/admin/**").hasAnyAuthority("ROLE_ADMIN")
+						.requestMatchers("/subject/**").permitAll()
 						.anyRequest().authenticated());
 		// Add our custom JWT security filter
 		http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -57,7 +57,9 @@ public class AdminServiceImpl implements AdminService {
 			
 			user.setName(req.getName());
 			user.setAddress(req.getAddress());
-			
+			user.setPassword(req.getPassword());
+			user.setUsername(req.getUsername());
+			user.setEmail(req.getEmail());
 			userRepository.save(user);
 			
 			map.put("status", true);
@@ -98,7 +100,7 @@ public class AdminServiceImpl implements AdminService {
 			subjectRepository.save(subject);
 			
 			map.put("status", true);
-			map.put("message", "Created Student");
+			map.put("message", "Created Subject");
 			
 			
 		}catch(Exception e) {
