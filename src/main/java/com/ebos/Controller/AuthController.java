@@ -1,6 +1,9 @@
+
 package com.ebos.Controller;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +22,7 @@ import com.ebos.Request.LoginRequest;
 import com.ebos.Request.SignUpRequest;
 import com.ebos.Response.ApiResponse;
 import com.ebos.Response.JwtAuthenticationResponse;
+import com.ebos.Service.UserService;
 import com.ebos.exception.AppException;
 import com.ebos.repository.RoleRepository;
 import com.ebos.repository.UserRepository;
@@ -34,26 +38,40 @@ import jakarta.validation.Valid;
 public class AuthController {
 
     @Autowired
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    RoleRepository roleRepository;
+    private RoleRepository roleRepository;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
-    JwtTokenProvider tokenProvider;
+    private JwtTokenProvider tokenProvider;
+    
+    @Autowired
+    private UserService userService;
+    
+    @PostMapping("/employeeLogin")
+    public ResponseEntity<Map<String,Object>> studentLogin(@Valid @RequestBody LoginRequest req) {
+    	Map<String, Object> map = new HashMap<String, Object>();
+		try {
+			map = userService.employeeLogin(req);
+			return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<Map<String, Object>>(map, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+    }
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsernameOrEmail(),
+                        loginRequest.getEmail(),
                         loginRequest.getPassword()
                 )
         );
@@ -82,7 +100,7 @@ public class AuthController {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+        Role userRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
                 .orElseThrow(() -> new AppException("User Role not set."));
 
         user.setRoles(Collections.singleton(userRole));

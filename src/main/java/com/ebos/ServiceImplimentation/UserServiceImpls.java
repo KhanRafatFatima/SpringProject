@@ -1,121 +1,84 @@
 package com.ebos.ServiceImplimentation;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.ebos.Request.SignUpRequest;
-import com.ebos.Response.ApiResponse;
-import com.ebos.Response.DeleteResponse;
-import com.ebos.Response.GetUserResponse;
-import com.ebos.Response.SetListResponse;
-import com.ebos.Response.UpdateResponse;
+import com.ebos.Request.LoginRequest;
+import com.ebos.Response.JwtAuthenticationResponse;
 import com.ebos.Service.UserService;
 import com.ebos.repository.UserRepository;
-import com.ebos.security.UserPrincipal;
+import com.ebos.security.JwtTokenProvider;
 import com.ebos.tables.User;
 
 @Service
 public class UserServiceImpls implements UserService {
-
+	
 	@Autowired
 	private UserRepository userRepository;
 
-	@Override
-	public SetListResponse findAll() {
-		SetListResponse setListResponse = new SetListResponse();
-		List<User> list = userRepository.findAll();
-		setListResponse.setMessage("Success");
-		setListResponse.setStatus("True");
-		setListResponse.setList(list);
-		
-		return setListResponse;
-	}
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
-      public GetUserResponse getUserData() {	
-		GetUserResponse  userResponse = new GetUserResponse();
-		try {
-			UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+  	@Autowired
+	private AuthenticationManager authenticationManager;
 
-			Optional<User> user2 = userRepository.findById(user.getId());
-			
-			User user3 = user2.get();
-			userResponse.setUser(user3);
-			userResponse.setSuccess(true);
-			userResponse.setMessage("success");
-			
-			return userResponse;
-			
-		}catch (Exception e) {
-			return userResponse;
-		}
-
-	}
-
+  	@Autowired
+	private JwtTokenProvider tokenProvider;
 	
-
 	@Override
-	public ApiResponse save(SignUpRequest theUser) {
-		ApiResponse apiResponse = new ApiResponse();
-		User user = new User();
-		userRepository.save(user);
-		apiResponse.setSuccess(true);
-		apiResponse.setMessage("success");
-		return apiResponse;
-	}
-	
-	public DeleteResponse deleteUser() {
-		DeleteResponse deleteResponse=new DeleteResponse();
-		
-		try {
-			UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	public Map<String, Object> employeeLogin(LoginRequest req) {
+	    Map<String, Object> map = new HashMap<>();
+	    try {
+	        Optional<User> optionalUser = userRepository.findByEmail(req.getEmail());
 
-			Optional<User> user2 = userRepository.findById(user.getId());
-			
-			User user3 = user2.get();
-			
-			userRepository.delete(user3);
-			
-			deleteResponse.setMessage("success");
-			deleteResponse.setStatus("true");
-			return deleteResponse;
-		} catch (Exception e) {
-			deleteResponse.setMessage("Failed to update");
-			deleteResponse.setStatus("false");
-			return deleteResponse;
-		}
+	        if (optionalUser.isEmpty()) {
+	            map.put("status", "Incorrect");
+	            return map;
+	        }
 
-	}
-	@Override
-	public UpdateResponse updateUser(SignUpRequest signUpRequest) {
-		UpdateResponse userInfoResponse = new UpdateResponse();
-		try {
-			UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	        User user = optionalUser.get();
+	        
+	        // Check if user has EMPLOYEE role (assuming EMPLOYEE role ID is 2)
+	        boolean isEmployee = user.getRoles().stream().anyMatch(role -> role.getId() == 2);
+	        
+	        if (!isEmployee) {
+	            map.put("status", "User Role Missing");
+	            return map;
+	        }
 
-			Optional<User> user2 = userRepository.findById(user.getId());
-			
-			User user3 = user2.get();
-			
-			user3.setEmail(signUpRequest.getEmail());
-			user3.setName(signUpRequest.getName());
-			user3.setUsername(signUpRequest.getUsername());
-			user3.setPassword(signUpRequest.getPassword());
-			
-			userRepository.save(user3);
-			
-			userInfoResponse.setMessage("success");
-			userInfoResponse.setSuccess(true);
-			return userInfoResponse;
-		} catch (Exception e) {
-			userInfoResponse.setMessage("Failed to update");
-			userInfoResponse.setSuccess(false);
-			return userInfoResponse;
-		}
+	        // Check if password matches
+	        if (passwordEncoder.matches(req.getPassword(), user.getPassword())) {
+	            Authentication authentication = authenticationManager.authenticate(
+	                    new UsernamePasswordAuthenticationToken(req.getStudentName(), req.getPassword()));
+
+	            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+	            String jwtToken = tokenProvider.generateToken(authentication);
+
+	            map.put("jwtToken", new JwtAuthenticationResponse(jwtToken));
+	            map.put("status", true);
+				map.put("message", "Logged in Successfully");
+	        } else {
+	        	map.put("status", false);
+				map.put("message", "Incorrect password");
+	        }
+
+	    } catch (Exception e) {
+	    	map.put("message", "Error occured" +e.getMessage());
+			map.put("status", false);
+	    }
+	    return map;
 	}
+
 
 	
 }
