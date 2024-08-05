@@ -9,8 +9,12 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 public class Role {
 	
     @Id
@@ -22,21 +26,6 @@ public class Role {
     @Column(length = 60)
     private RoleName name;
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public RoleName getName() {
-		return name;
-	}
-
-	public void setName(RoleName name) {
-		this.name = name;
-	}
     
     
 

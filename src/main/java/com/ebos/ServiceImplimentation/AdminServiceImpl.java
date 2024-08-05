@@ -53,34 +53,34 @@ public class AdminServiceImpl implements AdminService {
 	
 	
 
-	@Override
-	public Map<String, Object> createStudent(CreateStudentRequest req) {
-		Map<String,Object> map=new HashMap<>();
-		try {
-			User user=new User();
-			
-			user.setName(req.getName());
-			user.setAddress(req.getAddress());
-			user.setPassword(req.getPassword());
-			user.setUsername(req.getUsername());
-			user.setEmail(req.getEmail());
-			
-			 Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-		                .orElseThrow(() -> new AppException("User Role not set."));
-
-		        user.setRoles(Collections.singleton(userRole));
-			userRepository.save(user);
-			
-			map.put("status", true);
-			map.put("message", "Created Student");
-			
-			
-		}catch(Exception e) {
-			map.put("status", false);
-			map.put("message", "error occured");
+		@Override
+		public Map<String, Object> createStudent(CreateStudentRequest req) {
+			Map<String,Object> map=new HashMap<>();
+			try {
+				User user=new User();
+				
+				user.setName(req.getName());
+				user.setAddress(req.getAddress());
+				user.setPassword(req.getPassword());
+				user.setUsername(req.getUsername());
+				user.setEmail(req.getEmail());
+				
+				 Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+			                .orElseThrow(() -> new AppException("User Role not set."));
+	
+			        user.setRoles(Collections.singleton(userRole));
+				userRepository.save(user);
+				
+				map.put("status", true);
+				map.put("message", "Created Student");
+				
+				
+			}catch(Exception e) {
+				map.put("status", false);
+				map.put("message", "error occured");
+			}
+			return map;
 		}
-		return map;
-	}
 
 	@Override
 	public Map<String, Object> getAllStudentList() {

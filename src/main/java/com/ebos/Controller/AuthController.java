@@ -23,7 +23,6 @@ import com.ebos.Request.SignUpRequest;
 import com.ebos.Response.ApiResponse;
 import com.ebos.Response.JwtAuthenticationResponse;
 import com.ebos.Service.AuthService;
-import com.ebos.Service.UserService;
 import com.ebos.exception.AppException;
 import com.ebos.repository.RoleRepository;
 import com.ebos.repository.UserRepository;
