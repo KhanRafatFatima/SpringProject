@@ -56,8 +56,8 @@ public class AuthServiceImpl implements AuthService{
 		            return map;
 		        }
 
-		        // Check if password matches
-		        if (passwordEncoder.matches(req.getPassword(), user.getPassword())) {
+		     // Check if password matches (comparing plain text)
+		        if (req.getPassword().equals(user.getPassword())) {
 		            Authentication authentication = authenticationManager.authenticate(
 		                    new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword()));
 
@@ -67,7 +67,7 @@ public class AuthServiceImpl implements AuthService{
 
 		            map.put("jwtToken", new JwtAuthenticationResponse(jwtToken));
 		            map.put("status", true);
-					map.put("message", "Logged in Successfully");
+		            map.put("message", "Logged in Successfully");
 		        } else {
 		        	map.put("status", false);
 					map.put("message", "Incorrect password");

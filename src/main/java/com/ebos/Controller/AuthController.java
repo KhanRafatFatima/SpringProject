@@ -69,7 +69,7 @@ public class AuthController {
 		}
     }
 
-    @PostMapping("/signin")
+    @PostMapping("/adminLogin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(

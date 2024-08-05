@@ -1,7 +1,6 @@
 package com.ebos.ServiceImplimentation;
 
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +19,8 @@ import com.ebos.Request.CreateSubjectRequest;
 import com.ebos.Request.LoginRequest;
 import com.ebos.Response.JwtAuthenticationResponse;
 import com.ebos.Service.AdminService;
+import com.ebos.exception.AppException;
+import com.ebos.repository.RoleRepository;
 import com.ebos.repository.SubjectRepository;
 import com.ebos.repository.UserRepository;
 import com.ebos.security.JwtTokenProvider;
@@ -46,6 +47,9 @@ public class AdminServiceImpl implements AdminService {
 
   	@Autowired
 	private JwtTokenProvider tokenProvider;
+  	
+  	@Autowired
+  	private RoleRepository roleRepository;
 	
 	
 
@@ -60,6 +64,11 @@ public class AdminServiceImpl implements AdminService {
 			user.setPassword(req.getPassword());
 			user.setUsername(req.getUsername());
 			user.setEmail(req.getEmail());
+			
+			 Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+		                .orElseThrow(() -> new AppException("User Role not set."));
+
+		        user.setRoles(Collections.singleton(userRole));
 			userRepository.save(user);
 			
 			map.put("status", true);
